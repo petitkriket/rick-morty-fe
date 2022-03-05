@@ -11,17 +11,32 @@
       <CharacterFilters @change="onFilterChange" />
     </div>
 
-    <div :class="$style.cards">
-      <CharacterCard
-        :character="character"
-        v-for="character in characters"
-        :key="character.id"
-      />
-    </div>
+    <main>
+      <div v-if="requestStatus === 'loading'">Me Seeks</div>
 
-    <div :class="$style.pagination">
-      <p>It has a pagination</p>
-    </div>
+      <div v-if="requestStatus === 'error'" :class="$style.noResults">
+        <img src="../assets/pickle-jar.png" alt="A weird looking pickle jar" />
+        <h3>No Result..</h3>
+      </div>
+
+      <div v-if="requestStatus === 'success'" :class="$style.cards">
+        <CharacterCard
+          :character="character"
+          v-for="character in characters"
+          :key="character.id"
+        />
+      </div>
+
+      <div :class="$style.pagination">
+        <button v-if="paginationInfo.prev" @click="paginate('prev')">
+          Previous Page
+        </button>
+
+        <button v-if="paginationInfo.next" @click="paginate('next')">
+          Next Page
+        </button>
+      </div>
+    </main>
   </div>
 </template>
 
@@ -39,10 +54,9 @@ export default {
   data() {
     return {
       characters: null,
-      filterParams: {
-        name: "",
-        status: "",
-      },
+      requestStatus: "loading",
+      filterParams: {},
+      paginationInfo: {},
     };
   },
   watch: {
@@ -63,15 +77,34 @@ export default {
     },
     getCharacters() {
       const { filterParams } = this;
+      this.requestStatus = "loading";
 
       characterService
         .getAll(filterParams)
         .then((result) => {
           this.characters = result.data.results;
+          this.paginationInfo = result.data.info;
+          this.requestStatus = "success";
         })
         .catch((err) => {
+          this.requestStatus = "error";
           console.log(err);
         });
+    },
+    paginate(direction) {
+      const url = this.paginationInfo[direction];
+
+      if (url) {
+        const params = Object.fromEntries(
+          new URLSearchParams(url.split("?")[1])
+        );
+
+        this.onFilterChange(params);
+        this.scrollToTop();
+      }
+    },
+    scrollToTop() {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     },
   },
 };
@@ -80,6 +113,7 @@ export default {
 <style lang="scss" module>
 .charactersListPage {
   margin: 0 45px;
+  scroll-behavior: smooth;
 
   .search {
     width: 100%;
@@ -89,16 +123,32 @@ export default {
     margin-top: 8px;
   }
 
-  .cards {
+  main {
     margin-top: 16px;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 16px;
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-auto-rows: auto;
+      grid-gap: 16px;
+    }
+
+    .noResults {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        height: 200px;
+      }
+    }
   }
 
   .pagination {
-    margin-top: 8px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 16px;
   }
 }
 </style>

@@ -28,6 +28,10 @@
           </option>
         </select>
       </div>
+
+      <button @click="resetFilters" :class="$style.resetButton">
+        Clear filters
+      </button>
     </div>
   </div>
 </template>
@@ -47,10 +51,10 @@ export default {
     genderOptions() {
       return [
         { value: null, label: "Any" },
-        { value: "Female", label: "Female" },
-        { value: "Male", label: "Male" },
-        { value: "Genderless", label: "genderless" },
-        { value: "Unknown", label: "unknown" },
+        { value: "female", label: "Female" },
+        { value: "male", label: "Male" },
+        { value: "genderless", label: "Genderless" },
+        { value: "unknown", label: "Unknown" },
       ];
     },
   },
@@ -65,7 +69,14 @@ export default {
   methods: {
     onChange(field, value) {
       this.form[field] = value;
-      this.$emit("change", { [field]: value });
+      this.$emit("change", { [field]: value, page: undefined });
+    },
+    resetFilters() {
+      this.form.gender = null;
+      this.form.status = null;
+      this.form.page = undefined;
+
+      this.$emit("change", { ...this.form });
     },
   },
 };
