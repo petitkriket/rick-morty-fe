@@ -19,6 +19,12 @@ export default {
       default: "",
     },
   },
+  emits: ["input", "focus", "blur"],
+  watch: {
+    value(value) {
+      this.model = value;
+    },
+  },
   data() {
     return {
       model: this.value,
@@ -27,7 +33,7 @@ export default {
   computed: {
     listeners() {
       return {
-        ...this.$listeners,
+        ...this.$attrs,
         input: this.updateValue,
         focus: this.onFocus,
         blur: this.onBlur,
