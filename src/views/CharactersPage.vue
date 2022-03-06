@@ -22,6 +22,7 @@
       </div>
 
       <template v-if="requestStatus === 'success'">
+        <p>{{ paginationInfo.count }} results</p>
         <div :class="$style.cards">
           <CharacterCard
             :character="character"
