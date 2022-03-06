@@ -1,0 +1,60 @@
+<template>
+  <div :class="$style.baseSearchInput">
+    <input
+      type="text"
+      v-model="model"
+      v-bind="$attrs"
+      v-on="listeners"
+      :class="$style.input"
+    />
+  </div>
+</template>
+
+<script>
+export default {
+  name: "BaseSearchInput",
+  props: {
+    value: {
+      type: [String, Number],
+      default: "",
+    },
+  },
+  data() {
+    return {
+      model: this.value,
+    };
+  },
+  computed: {
+    listeners() {
+      return {
+        ...this.$listeners,
+        input: this.updateValue,
+        focus: this.onFocus,
+        blur: this.onBlur,
+      };
+    },
+    internalValue() {
+      return this.value;
+    },
+  },
+  methods: {
+    updateValue(event) {
+      this.$emit("input", event.target.value.toLowerCase());
+    },
+    onFocus(value) {
+      this.$emit("focus", value);
+    },
+    onBlur(value) {
+      this.$emit("blur", value);
+    },
+  },
+};
+</script>
+
+<style lang="scss" module>
+.baseSearchInput {
+  .input {
+    padding: 8px;
+  }
+}
+</style>
