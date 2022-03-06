@@ -32,8 +32,9 @@ export default {
   cursor: pointer;
 
   button {
-    border: 0;
     padding: 8px;
+    border: 0;
+    cursor: pointer;
   }
 }
 </style>

@@ -9,38 +9,42 @@
       <button :class="$style.submit">Search</button>
     </div>
 
-    <div :class="$style.filters">
-      <CharacterFilters @change="onFilterChange" />
-    </div>
+    <CharacterFilters @change="onFilterChange" :class="$style.filters" />
 
-    <main>
-      <div v-if="requestStatus === 'loading'">Me Seeks..</div>
+    <transition name="fade" appear>
+      <main :key="paginationInfo.next">
+        <div v-if="requestStatus === 'loading'"></div>
 
-      <div v-if="requestStatus === 'error'" :class="$style.noResults">
-        <img src="../assets/pickle-jar.png" alt="A weird looking pickle jar" />
-        <h3>No Result..</h3>
-      </div>
+        <div v-if="requestStatus === 'error'" :class="$style.noResults">
+          <img
+            src="../assets/pickle-jar.png"
+            alt="A weird looking pickle jar"
+          />
+          <h3>No Result..</h3>
+        </div>
 
-      <template v-if="requestStatus === 'success'">
-        <p>{{ paginationInfo.count }} results</p>
-        <div :class="$style.cards">
-          <CharacterCard
-            :character="character"
-            v-for="character in characters"
-            :key="character.id"
+        <div v-if="requestStatus === 'success'">
+          <p>{{ characters.length }} of {{ paginationInfo.count }} results</p>
+          <div :class="$style.cards">
+            <CharacterCard
+              :character="character"
+              v-for="character in characters"
+              :key="character.id"
+            />
+          </div>
+
+          <BasePager
+            :class="$style.pager"
+            :currentPage="$route.query.page"
+            :pageCount="paginationInfo.pages"
+            :hasPrevPage="!!paginationInfo.prev"
+            :hasNextPage="!!paginationInfo.next"
+            @prev="paginate('prev')"
+            @next="paginate('next')"
           />
         </div>
-        <div :class="$style.pagination">
-          <button v-if="paginationInfo.prev" @click="paginate('prev')">
-            Previous Page
-          </button>
-
-          <button v-if="paginationInfo.next" @click="paginate('next')">
-            Next Page
-          </button>
-        </div>
-      </template>
-    </main>
+      </main>
+    </transition>
   </div>
 </template>
 
@@ -49,18 +53,18 @@ import { mapActions } from "vuex";
 import { FETCH_CHARACTERS } from "../store/modules/characters/actions";
 
 import BaseSearchInput from "../components/BaseSearchInput.vue";
+import BasePager from "../components/BasePager.vue";
 
 import CharacterFilters from "../components/CharacterFilters.vue";
 import CharacterCard from "../components/CharacterCard.vue";
 
 export default {
-  components: { BaseSearchInput, CharacterCard, CharacterFilters },
+  components: { BaseSearchInput, BasePager, CharacterCard, CharacterFilters },
   name: "CharactersPage",
   data() {
     return {
       characters: null,
-      requestStatus: "loading",
-      filterParams: {},
+      requestStatus: null,
       paginationInfo: {},
     };
   },
@@ -109,11 +113,7 @@ export default {
         );
 
         this.onFilterChange(params);
-        this.scrollToTop();
       }
-    },
-    scrollToTop() {
-      window.scrollTo({ top: 0, behavior: "smooth" });
     },
   },
 };
@@ -121,16 +121,21 @@ export default {
 
 <style lang="scss" module>
 .charactersListPage {
-  margin: 0 45px;
+  margin: 16px 64px 0;
+
+  @media (max-width: 768px) {
+    margin: 16px 16px 0;
+  }
 
   .search {
     display: flex;
     gap: 4px;
 
     .submit {
+      cursor: pointer;
       background: #42b983;
       color: white;
-      border: 1px solid #42b983;
+      border: 0;
     }
   }
 
@@ -140,11 +145,20 @@ export default {
 
   main {
     margin-top: 16px;
+
     .cards {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(6, minmax(0, 1fr));
       grid-auto-rows: auto;
       grid-gap: 16px;
+
+      @media (max-width: 768px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      @media (max-width: 480px) {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
     }
 
     .noResults {
@@ -159,11 +173,19 @@ export default {
     }
   }
 
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    gap: 16px;
+  .pager {
     margin-top: 16px;
+  }
+}
+
+:global {
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 300ms;
+  }
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
   }
 }
 </style>
