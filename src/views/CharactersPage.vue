@@ -9,9 +9,13 @@
       <button :class="$style.submit">Search</button>
     </div>
 
-    <CharacterFilters @change="onFilterChange" :class="$style.filters" />
+    <CharacterFilters
+      @change="onFilterChange"
+      @reset="resetFilters"
+      :class="$style.filters"
+    />
 
-    <transition name="fade" appear>
+    <Transition name="fade" appear>
       <main :key="paginationInfo.next">
         <div v-if="requestStatus === 'loading'"></div>
 
@@ -44,11 +48,12 @@
           />
         </div>
       </main>
-    </transition>
+    </Transition>
   </div>
 </template>
 
 <script>
+import _omitBy from "lodash.omitby";
 import { mapActions } from "vuex";
 import { FETCH_CHARACTERS } from "../store/modules/characters/actions";
 
@@ -78,17 +83,24 @@ export default {
     },
   },
   methods: {
+    _omitBy,
     ...mapActions("characters", [FETCH_CHARACTERS]),
     onSearch(name) {
       this.onFilterChange({ name });
     },
     onFilterChange(params) {
-      const query = {
-        ...this.$route.query,
-        ...params,
-      };
+      const query = this._omitBy(
+        {
+          ...this.$route.query,
+          ...params,
+        },
+        (value) => [null, undefined, ""].includes(value)
+      );
 
       this.$router.push({ query });
+    },
+    resetFilters() {
+      this.$router.push({ query: {} });
     },
     getCharacters() {
       const { query } = this.$route;
@@ -183,7 +195,7 @@ export default {
   .fade-leave-active {
     transition: opacity 300ms;
   }
-  .fade-enter,
+  .fade-enter-from,
   .fade-leave-to {
     opacity: 0;
   }

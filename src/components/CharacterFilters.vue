@@ -8,7 +8,7 @@
             v-for="statusOption in healthStatusOptions"
             :key="statusOption.value"
             :value="statusOption.value"
-            :selected="form.status === statusOption.value"
+            :selected="$route.query.status === statusOption.value"
           >
             {{ statusOption.label }}
           </option>
@@ -22,14 +22,14 @@
             v-for="statusOption in genderOptions"
             :key="statusOption.value"
             :value="statusOption.value"
-            :selected="form.gender === statusOption.value"
+            :selected="$route.query.gender === statusOption.value"
           >
             {{ statusOption.label }}
           </option>
         </select>
       </div>
 
-      <button @click="resetFilters">Clear filters</button>
+      <button @click="onReset">Clear filters</button>
     </div>
   </div>
 </template>
@@ -37,6 +37,7 @@
 <script>
 export default {
   name: "CharacterFilters",
+  emits: ["change", "reset"],
   computed: {
     healthStatusOptions() {
       return [
@@ -56,25 +57,13 @@ export default {
       ];
     },
   },
-  data() {
-    return {
-      form: {
-        gender: null,
-        status: null,
-      },
-    };
-  },
+
   methods: {
     onChange(field, value) {
-      this.form[field] = value;
-      this.$emit("change", { [field]: value, page: undefined });
+      this.$emit("change", { [field]: value, page: null });
     },
-    resetFilters() {
-      this.form.gender = null;
-      this.form.status = null;
-      this.form.page = undefined;
-
-      this.$emit("change", { ...this.form });
+    onReset() {
+      this.$emit("reset");
     },
   },
 };

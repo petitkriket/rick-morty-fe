@@ -1,13 +1,12 @@
-import Vue from "vue";
-import Vuex from "vuex";
-
-Vue.use(Vuex);
+import { createStore } from "vuex";
 
 import characters from "./modules/characters";
 
-export default new Vuex.Store({
-  state: {},
-  mutations: {},
-  actions: {},
-  modules: { characters },
+export const store = createStore({
+  state() {
+    return {};
+  },
+  modules: {
+    characters,
+  },
 });
