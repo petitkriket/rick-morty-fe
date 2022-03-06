@@ -51,7 +51,7 @@ export default {
 
 <style lang="scss" module>
 .characterPage {
-  margin: 0 45px;
+  margin: 16px 64px 0;
 
   .container {
     margin-top: 12px;
