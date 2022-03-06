@@ -33,9 +33,6 @@ export default {
         blur: this.onBlur,
       };
     },
-    internalValue() {
-      return this.value;
-    },
   },
   methods: {
     updateValue(event) {
