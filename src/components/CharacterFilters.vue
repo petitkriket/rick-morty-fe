@@ -29,9 +29,7 @@
         </select>
       </div>
 
-      <button @click="resetFilters" :class="$style.resetButton">
-        Clear filters
-      </button>
+      <button @click="resetFilters">Clear filters</button>
     </div>
   </div>
 </template>
@@ -92,6 +90,7 @@ export default {
   .criterias {
     display: flex;
     justify-content: flex-start;
+    align-items: center;
     gap: 64px;
     padding: 8px;
 

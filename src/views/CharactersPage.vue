@@ -2,9 +2,11 @@
   <div :class="$style.charactersListPage">
     <div :class="$style.search">
       <BaseSearchInput
+        :value="$route.query.name"
         placeholder="Search for a Character"
-        v-model="filterParams.name"
+        @input="onSearch"
       />
+      <button :class="$style.submit">Search</button>
     </div>
 
     <div :class="$style.filters">
@@ -12,36 +14,38 @@
     </div>
 
     <main>
-      <div v-if="requestStatus === 'loading'">Me Seeks</div>
+      <div v-if="requestStatus === 'loading'">Me Seeks..</div>
 
       <div v-if="requestStatus === 'error'" :class="$style.noResults">
         <img src="../assets/pickle-jar.png" alt="A weird looking pickle jar" />
         <h3>No Result..</h3>
       </div>
 
-      <div v-if="requestStatus === 'success'" :class="$style.cards">
-        <CharacterCard
-          :character="character"
-          v-for="character in characters"
-          :key="character.id"
-        />
-      </div>
+      <template v-if="requestStatus === 'success'">
+        <div :class="$style.cards">
+          <CharacterCard
+            :character="character"
+            v-for="character in characters"
+            :key="character.id"
+          />
+        </div>
+        <div :class="$style.pagination">
+          <button v-if="paginationInfo.prev" @click="paginate('prev')">
+            Previous Page
+          </button>
 
-      <div :class="$style.pagination">
-        <button v-if="paginationInfo.prev" @click="paginate('prev')">
-          Previous Page
-        </button>
-
-        <button v-if="paginationInfo.next" @click="paginate('next')">
-          Next Page
-        </button>
-      </div>
+          <button v-if="paginationInfo.next" @click="paginate('next')">
+            Next Page
+          </button>
+        </div>
+      </template>
     </main>
   </div>
 </template>
 
 <script>
-import { characterService } from "../services/models/character";
+import { mapActions } from "vuex";
+import { FETCH_CHARACTERS } from "../store/modules/characters/actions";
 
 import BaseSearchInput from "../components/BaseSearchInput.vue";
 
@@ -50,7 +54,7 @@ import CharacterCard from "../components/CharacterCard.vue";
 
 export default {
   components: { BaseSearchInput, CharacterCard, CharacterFilters },
-  name: "CharactersListPage",
+  name: "CharactersPage",
   data() {
     return {
       characters: null,
@@ -60,7 +64,7 @@ export default {
     };
   },
   watch: {
-    filterParams: {
+    "$route.query": {
       handler() {
         this.getCharacters();
       },
@@ -69,26 +73,30 @@ export default {
     },
   },
   methods: {
-    onFilterChange(updatedFilters) {
-      this.filterParams = {
-        ...this.filterParams,
-        ...updatedFilters,
+    ...mapActions("characters", [FETCH_CHARACTERS]),
+    onSearch(name) {
+      this.onFilterChange({ name });
+    },
+    onFilterChange(params) {
+      const query = {
+        ...this.$route.query,
+        ...params,
       };
+
+      this.$router.push({ query });
     },
     getCharacters() {
-      const { filterParams } = this;
+      const { query } = this.$route;
       this.requestStatus = "loading";
 
-      characterService
-        .getAll(filterParams)
+      this[FETCH_CHARACTERS](query)
         .then((result) => {
           this.characters = result.data.results;
           this.paginationInfo = result.data.info;
           this.requestStatus = "success";
         })
-        .catch((err) => {
+        .catch(() => {
           this.requestStatus = "error";
-          console.log(err);
         });
     },
     paginate(direction) {
@@ -113,14 +121,20 @@ export default {
 <style lang="scss" module>
 .charactersListPage {
   margin: 0 45px;
-  scroll-behavior: smooth;
 
   .search {
-    width: 100%;
+    display: flex;
+    gap: 4px;
+
+    .submit {
+      background: #42b983;
+      color: white;
+      border: 1px solid #42b983;
+    }
   }
 
   .filters {
-    margin-top: 8px;
+    margin-top: 16px;
   }
 
   main {

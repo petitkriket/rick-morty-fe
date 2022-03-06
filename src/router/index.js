@@ -2,7 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 
 import LandingPage from "../views/LandingPage.vue";
-import CharactersListPage from "../views/CharactersListPage.vue";
+import CharactersPage from "../views/CharactersPage.vue";
 import CharacterPage from "../views/CharacterPage.vue";
 
 Vue.use(VueRouter);
@@ -15,8 +15,8 @@ const routes = [
   },
   {
     path: "/characters",
-    name: "CharactersListPage",
-    component: CharactersListPage,
+    name: "CharactersPage",
+    component: CharactersPage,
   },
   {
     path: "/characters/:id",

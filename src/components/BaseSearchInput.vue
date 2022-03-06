@@ -1,6 +1,12 @@
 <template>
   <div :class="$style.baseSearchInput">
-    <input type="text" v-bind="$attrs" v-on="listeners" :class="$style.input" />
+    <input
+      type="text"
+      v-model="model"
+      v-bind="$attrs"
+      v-on="listeners"
+      :class="$style.input"
+    />
   </div>
 </template>
 
@@ -15,7 +21,7 @@ export default {
   },
   data() {
     return {
-      focused: null,
+      model: this.value,
     };
   },
   computed: {
@@ -27,10 +33,13 @@ export default {
         blur: this.onBlur,
       };
     },
+    internalValue() {
+      return this.value;
+    },
   },
   methods: {
     updateValue(event) {
-      this.$emit("input", event.target.value);
+      this.$emit("input", event.target.value.toLowerCase());
     },
     onFocus(value) {
       this.$emit("focus", value);
