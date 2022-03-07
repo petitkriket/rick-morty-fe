@@ -1,11 +1,11 @@
 <template>
   <div :class="$style.baseSearchInput">
     <input
-      type="text"
       v-model="model"
+      type="text"
       v-bind="$attrs"
-      v-on="listeners"
       :class="$style.input"
+      v-on="listeners"
     />
   </div>
 </template>
@@ -20,11 +20,6 @@ export default {
     },
   },
   emits: ["input", "focus", "blur"],
-  watch: {
-    value(value) {
-      this.model = value;
-    },
-  },
   data() {
     return {
       model: this.value,
@@ -38,6 +33,11 @@ export default {
         focus: this.onFocus,
         blur: this.onBlur,
       };
+    },
+  },
+  watch: {
+    value(value) {
+      this.model = value;
     },
   },
   methods: {

@@ -10,9 +10,9 @@
     </div>
 
     <CharacterFilters
+      :class="$style.filters"
       @change="onFilterChange"
       @reset="resetFilters"
-      :class="$style.filters"
     />
 
     <Transition name="fade" appear>
@@ -31,18 +31,18 @@
           <p>{{ characters.length }} of {{ paginationInfo.count }} results</p>
           <div :class="$style.cards">
             <CharacterCard
-              :character="character"
               v-for="character in characters"
               :key="character.id"
+              :character="character"
             />
           </div>
 
           <BasePager
             :class="$style.pager"
-            :currentPage="$route.query.page"
-            :pageCount="paginationInfo.pages"
-            :hasPrevPage="!!paginationInfo.prev"
-            :hasNextPage="!!paginationInfo.next"
+            :current-page="$route.query.page"
+            :page-count="paginationInfo.pages"
+            :has-prev-page="!!paginationInfo.prev"
+            :has-next-page="!!paginationInfo.next"
             @prev="paginate('prev')"
             @next="paginate('next')"
           />
@@ -64,8 +64,8 @@ import CharacterFilters from "../components/CharacterFilters.vue";
 import CharacterCard from "../components/CharacterCard.vue";
 
 export default {
-  components: { BaseSearchInput, BasePager, CharacterCard, CharacterFilters },
   name: "CharactersPage",
+  components: { BaseSearchInput, BasePager, CharacterCard, CharacterFilters },
   data() {
     return {
       characters: null,

@@ -25,18 +25,12 @@ import { FETCH_CHARACTER } from "../store/modules/characters/actions";
 import BaseBackButton from "../components/BaseBackButton.vue";
 
 export default {
-  components: { BaseBackButton },
   name: "CharacterPage",
+  components: { BaseBackButton },
   beforeRouteEnter(to, from, next) {
     next((vm) => {
       vm.getCharacter(Number(to.params.id));
     });
-  },
-  methods: {
-    ...mapActions("characters", [FETCH_CHARACTER]),
-    async getCharacter(id) {
-      this[FETCH_CHARACTER](id);
-    },
   },
   computed: {
     ...mapState("characters", ["characters"]),
@@ -44,6 +38,12 @@ export default {
       return this.characters.find(
         (character) => character.id === Number(this.$route.params.id)
       );
+    },
+  },
+  methods: {
+    ...mapActions("characters", [FETCH_CHARACTER]),
+    async getCharacter(id) {
+      this[FETCH_CHARACTER](id);
     },
   },
 };
