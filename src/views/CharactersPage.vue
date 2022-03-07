@@ -1,10 +1,77 @@
+<script setup>
+import BaseSearchInput from "../components/BaseSearchInput.vue";
+import BasePager from "../components/BasePager.vue";
+
+import CharacterFilters from "../components/CharacterFilters.vue";
+import CharacterCard from "../components/CharacterCard.vue";
+
+// TODO: create a composable
+import _omitBy from "lodash.omitby";
+import { characterService } from "../services/models/character";
+
+import { ref, onBeforeMount, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+
+const characters = ref(null);
+const requestStatus = ref(null);
+const paginationInfo = ref({});
+
+const router = useRouter();
+const route = useRoute();
+
+const onSearch = (name) => onFilterChange({ name });
+const resetFilters = () => router.push({ query: {} });
+
+onBeforeMount(async () => getCharacters());
+
+watch(
+  () => route.query,
+  async () => getCharacters()
+);
+
+const getCharacters = async () => {
+  requestStatus.value = "loading";
+
+  characterService
+    .getAll(route.query)
+    .then((result) => {
+      characters.value = result.data.results;
+      paginationInfo.value = result.data.info;
+      requestStatus.value = "success";
+    })
+    .catch(() => {
+      requestStatus.value = "error";
+    });
+};
+
+const onFilterChange = (params) => {
+  const query = _omitBy(
+    {
+      ...route.query,
+      ...params,
+    },
+    (value) => [null, undefined, ""].includes(value)
+  );
+
+  router.push({ query });
+};
+
+const paginate = (direction) => {
+  const url = paginationInfo.value[direction];
+  if (!url) return;
+
+  const params = Object.fromEntries(new URLSearchParams(url.split("?")[1]));
+  onFilterChange(params);
+};
+</script>
+
 <template>
   <div :class="$style.charactersListPage">
     <div :class="$style.search">
       <BaseSearchInput
-        :value="$route.query.name"
+        :model-value="route.query.name"
         placeholder="Search for a Character"
-        @input="onSearch"
+        @update:model-value="onSearch"
       />
       <button :class="$style.submit">Search</button>
     </div>
@@ -51,85 +118,6 @@
     </Transition>
   </div>
 </template>
-
-<script>
-import _omitBy from "lodash.omitby";
-import { mapActions } from "vuex";
-import { FETCH_CHARACTERS } from "../store/modules/characters/actions";
-
-import BaseSearchInput from "../components/BaseSearchInput.vue";
-import BasePager from "../components/BasePager.vue";
-
-import CharacterFilters from "../components/CharacterFilters.vue";
-import CharacterCard from "../components/CharacterCard.vue";
-
-export default {
-  name: "CharactersPage",
-  components: { BaseSearchInput, BasePager, CharacterCard, CharacterFilters },
-  data() {
-    return {
-      characters: null,
-      requestStatus: null,
-      paginationInfo: {},
-    };
-  },
-  watch: {
-    "$route.query": {
-      handler() {
-        this.getCharacters();
-      },
-      deep: true,
-      immediate: true,
-    },
-  },
-  methods: {
-    _omitBy,
-    ...mapActions("characters", [FETCH_CHARACTERS]),
-    onSearch(name) {
-      this.onFilterChange({ name });
-    },
-    onFilterChange(params) {
-      const query = this._omitBy(
-        {
-          ...this.$route.query,
-          ...params,
-        },
-        (value) => [null, undefined, ""].includes(value)
-      );
-
-      this.$router.push({ query });
-    },
-    resetFilters() {
-      this.$router.push({ query: {} });
-    },
-    getCharacters() {
-      const { query } = this.$route;
-      this.requestStatus = "loading";
-
-      this[FETCH_CHARACTERS](query)
-        .then((result) => {
-          this.characters = result.data.results;
-          this.paginationInfo = result.data.info;
-          this.requestStatus = "success";
-        })
-        .catch(() => {
-          this.requestStatus = "error";
-        });
-    },
-    paginate(direction) {
-      const url = this.paginationInfo[direction];
-
-      if (url) {
-        const params = Object.fromEntries(
-          new URLSearchParams(url.split("?")[1])
-        );
-
-        this.onFilterChange(params);
-      }
-    },
-  },
-};
-</script>
 
 <style lang="scss" module>
 .charactersListPage {

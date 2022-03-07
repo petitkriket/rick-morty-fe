@@ -1,3 +1,16 @@
+<script setup>
+import BaseSearchInput from "../components/BaseSearchInput.vue";
+
+import { ref } from "vue";
+const searchValue = ref("");
+
+import { useRouter } from "vue-router";
+const router = useRouter();
+
+const search = (name) =>
+  router.push({ name: "CharactersPage", query: { name } });
+</script>
+
 <template>
   <div :class="$style.landingPage">
     <div :class="$style.fieldGroup">
@@ -21,28 +34,6 @@
     </div>
   </div>
 </template>
-
-<script>
-import BaseSearchInput from "../components/BaseSearchInput.vue";
-
-export default {
-  name: "LandingPage",
-  components: { BaseSearchInput },
-  data() {
-    return {
-      searchValue: null,
-    };
-  },
-  methods: {
-    search(name) {
-      this.$router.push({
-        name: "CharactersPage",
-        query: { name },
-      });
-    },
-  },
-};
-</script>
 
 <style lang="scss" module>
 .landingPage {

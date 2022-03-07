@@ -1,3 +1,14 @@
+<script setup>
+const props = defineProps({
+  character: {
+    type: Object,
+    required: true,
+  },
+});
+
+const character = { ...props.character };
+</script>
+
 <template>
   <div :class="$style.container">
     <router-link :to="{ name: 'CharacterPage', params: { id: character.id } }">
@@ -11,24 +22,6 @@
     </div>
   </div>
 </template>
-
-<script>
-export default {
-  name: "CharacterCard",
-  props: {
-    character: {
-      type: Object,
-      default: () => ({
-        id: null,
-        name: "",
-        image: "",
-        status: "",
-        gender: "",
-      }),
-    },
-  },
-};
-</script>
 
 <style lang="scss" module>
 .container {
