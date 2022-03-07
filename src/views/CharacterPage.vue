@@ -1,3 +1,26 @@
+<script setup>
+import BaseBackButton from "../components/BaseBackButton.vue";
+
+import { onBeforeMount, computed } from "vue";
+import { useStore } from "vuex";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+const store = useStore();
+
+const getCharacter = async (id) => {
+  store.dispatch("characters/FETCH_CHARACTER", id);
+};
+
+onBeforeMount(async () => getCharacter(route.params.id));
+
+const character = computed(() =>
+  store.state.characters.characters.find(
+    ({ id }) => id === Number(route.params.id)
+  )
+);
+</script>
+
 <template>
   <div :class="$style.characterPage">
     <BaseBackButton />
@@ -15,39 +38,6 @@
     </div>
   </div>
 </template>
-
-<script>
-import { mapState } from "vuex";
-
-import { mapActions } from "vuex";
-import { FETCH_CHARACTER } from "../store/modules/characters/actions";
-
-import BaseBackButton from "../components/BaseBackButton.vue";
-
-export default {
-  name: "CharacterPage",
-  components: { BaseBackButton },
-  beforeRouteEnter(to, from, next) {
-    next((vm) => {
-      vm.getCharacter(Number(to.params.id));
-    });
-  },
-  computed: {
-    ...mapState("characters", ["characters"]),
-    character() {
-      return this.characters.find(
-        (character) => character.id === Number(this.$route.params.id)
-      );
-    },
-  },
-  methods: {
-    ...mapActions("characters", [FETCH_CHARACTER]),
-    async getCharacter(id) {
-      this[FETCH_CHARACTER](id);
-    },
-  },
-};
-</script>
 
 <style lang="scss" module>
 .characterPage {

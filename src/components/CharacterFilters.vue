@@ -1,9 +1,33 @@
+<script setup>
+import { defineEmits } from "vue";
+const emit = defineEmits(["reset", "change"]);
+
+const reset = () => emit("reset");
+const updateFilter = (field, value) =>
+  emit("change", { [field]: value, page: "" });
+
+const healthStatusOptions = [
+  { value: "", label: "Any" },
+  { value: "alive", label: "Alive" },
+  { value: "dead", label: "Dead" },
+  { value: "unknown", label: "Unknown" },
+];
+
+const genderOptions = [
+  { value: "", label: "Any" },
+  { value: "female", label: "Female" },
+  { value: "male", label: "Male" },
+  { value: "genderless", label: "Genderless" },
+  { value: "unknown", label: "Unknown" },
+];
+</script>
+
 <template>
   <div :class="$style.container">
     <div :class="$style.criterias">
       <div :class="$style.filter">
         Status
-        <select @change="onChange('status', $event.target.value)">
+        <select @change="updateFilter('status', $event.target.value)">
           <option
             v-for="statusOption in healthStatusOptions"
             :key="statusOption.value"
@@ -17,7 +41,7 @@
 
       <div :class="$style.filter">
         Gender
-        <select @change="onChange('gender', $event.target.value)">
+        <select @change="updateFilter('gender', $event.target.value)">
           <option
             v-for="statusOption in genderOptions"
             :key="statusOption.value"
@@ -29,45 +53,10 @@
         </select>
       </div>
 
-      <button @click="onReset">Clear filters</button>
+      <button @click="reset">Clear filters</button>
     </div>
   </div>
 </template>
-
-<script>
-export default {
-  name: "CharacterFilters",
-  emits: ["change", "reset"],
-  computed: {
-    healthStatusOptions() {
-      return [
-        { value: null, label: "Any" },
-        { value: "alive", label: "Alive" },
-        { value: "dead", label: "Dead" },
-        { value: "unknown", label: "Unknown" },
-      ];
-    },
-    genderOptions() {
-      return [
-        { value: null, label: "Any" },
-        { value: "female", label: "Female" },
-        { value: "male", label: "Male" },
-        { value: "genderless", label: "Genderless" },
-        { value: "unknown", label: "Unknown" },
-      ];
-    },
-  },
-
-  methods: {
-    onChange(field, value) {
-      this.$emit("change", { [field]: value, page: null });
-    },
-    onReset() {
-      this.$emit("reset");
-    },
-  },
-};
-</script>
 
 <style lang="scss" module>
 .container {
