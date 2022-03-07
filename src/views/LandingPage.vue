@@ -26,8 +26,8 @@
 import BaseSearchInput from "../components/BaseSearchInput.vue";
 
 export default {
-  components: { BaseSearchInput },
   name: "LandingPage",
+  components: { BaseSearchInput },
   data() {
     return {
       searchValue: null,
