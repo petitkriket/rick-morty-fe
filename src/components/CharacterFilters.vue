@@ -1,10 +1,17 @@
 <script setup>
-import { defineEmits } from "vue";
+import { defineEmits, defineProps } from "vue";
 const emit = defineEmits(["reset", "change"]);
 
 const reset = () => emit("reset");
 const updateFilter = (field, value) =>
   emit("change", { [field]: value, page: "" });
+
+const props = defineProps({
+  clearable: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const healthStatusOptions = [
   { value: "", label: "Any" },
@@ -53,7 +60,7 @@ const genderOptions = [
         </select>
       </div>
 
-      <button @click="reset">Clear filters</button>
+      <button :disabled="!props.clearable" @click="reset">Clear filters</button>
     </div>
   </div>
 </template>

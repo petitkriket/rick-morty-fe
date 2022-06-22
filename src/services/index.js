@@ -6,9 +6,10 @@ import { camelizeKeys, decamelizeKeys } from "humps";
  * See documentation at https://rickandmortyapi.com/documentation
  **/
 
-export const rickAndMortyAPI = axios.create({
-  baseURL: process.env.VUEAPP_API_URL || "https://rickandmortyapi.com/api/",
-});
+const baseURL =
+  import.meta.env.VITE_RICK_MORTY_API_URL || "https://rickandmortyapi.com/api/";
+
+export const rickAndMortyAPI = axios.create({ baseURL });
 
 // Axios middleware to convert all api responses to camelCase
 rickAndMortyAPI.interceptors.response.use((response) => {
