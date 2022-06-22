@@ -1,11 +1,5 @@
 <script setup>
-import BaseSearchInput from "../components/BaseSearchInput.vue";
-import BasePager from "../components/BasePager.vue";
-
-import CharacterFilters from "../components/CharacterFilters.vue";
-import CharacterCard from "../components/CharacterCard.vue";
-
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import _omitBy from "lodash.omitby";
 
@@ -13,8 +7,9 @@ import { useCharactersQuery } from "../queries/character";
 
 const router = useRouter();
 const route = useRoute();
-
+const searchValue = ref(route.query.name);
 const queryParams = computed(() => route.query);
+const currentPage = computed(() => Number(route.query.page || 1));
 
 const {
   isError,
@@ -36,63 +31,66 @@ const onFilterChange = (params) => {
   router.push({ query });
 };
 
-const onSearch = (name) => onFilterChange({ name });
-const paginate = (url) =>
-  onFilterChange(Object.fromEntries(new URLSearchParams(url.split("?")[1])));
+const onSearch = (name) => onFilterChange({ name, page: undefined });
+const paginate = (page) => onFilterChange({ page });
 const resetFilters = () => router.push({ query: {} });
 const hasActiveFilters = computed(() => Object.keys(route.query).length > 0);
 </script>
 
 <template>
-  <div :class="$style.charactersListPage">
-    <div :class="$style.search">
-      <BaseSearchInput
-        :model-value="route.query.name"
-        placeholder="Search for a Character"
-        @update:model-value="onSearch"
-      />
-      <button :class="$style.submit">Search</button>
-    </div>
+  <div class="mx-16 my-4">
+    <a-input-search
+      v-model:value="searchValue"
+      :loading="isLoading"
+      placeholder="Find a Character"
+      size="large"
+      enter-button
+      allow-clear
+      @search="onSearch"
+    />
 
     <CharacterFilters
       :clearable="hasActiveFilters"
-      :class="$style.filters"
+      class="mt-4"
       @change="onFilterChange"
       @reset="resetFilters"
     />
     <Transition name="fade" appear>
-      <main :key="route.query.page">
-        <div v-if="isLoading">Loading...</div>
-
-        <div v-if="isError" :class="$style.noResults">
+      <main :key="route.query.page" class="mt-4">
+        <div
+          v-if="isError"
+          class="flex flex-col items-center justify-center gap-4"
+        >
           <img
             src="../assets/pickle-jar.png"
             alt="A weird looking pickle jar"
+            class="max-h-56"
           />
-          <h3>No Results...</h3>
+          <span class="text-3xl font-medium">Try something else..</span>
         </div>
 
-        <div v-if="isSuccess">
-          <p>
-            {{ characters.results.length }} of
-            {{ characters.info.count }} results
-          </p>
-          <div :class="$style.cards">
-            <CharacterCard
-              v-for="character in characters.results"
-              :key="character.id"
-              :character="character"
-            />
-          </div>
+        <div v-if="isLoading" :class="$style.list">
+          <a-card v-for="i in 20" :key="i" loading>...</a-card>
+        </div>
 
-          <BasePager
-            :class="$style.pager"
-            :current-page="$route.query.page"
-            :page-count="characters.info.pages"
-            :has-prev-page="!!characters.info.prev"
-            :has-next-page="!!characters.info.next"
-            @prev="paginate(characters.info.prev)"
-            @next="paginate(characters.info.next)"
+        <div v-if="isSuccess" :class="$style.list">
+          <CharacterCard
+            v-for="character in characters.results"
+            :key="character.id"
+            :character="character"
+          />
+        </div>
+
+        <div class="my-4">
+          <a-pagination
+            :current="currentPage"
+            :total="characters.info.count"
+            :show-total="
+              (total, range) => `${range[0]}-${range[1]} of ${total} characters`
+            "
+            :default-page-size="20"
+            :show-size-changer="false"
+            @change="paginate"
           />
         </div>
       </main>
@@ -101,62 +99,8 @@ const hasActiveFilters = computed(() => Object.keys(route.query).length > 0);
 </template>
 
 <style lang="scss" module>
-.charactersListPage {
-  margin: 16px 64px 0;
-
-  @media (max-width: 768px) {
-    margin: 16px 16px 0;
-  }
-
-  .search {
-    display: flex;
-    gap: 4px;
-
-    .submit {
-      cursor: pointer;
-      background: #42b983;
-      color: white;
-      border: 0;
-    }
-  }
-
-  .filters {
-    margin-top: 16px;
-  }
-
-  main {
-    margin-top: 16px;
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      grid-auto-rows: auto;
-      grid-gap: 16px;
-
-      @media (max-width: 768px) {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      @media (max-width: 480px) {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
-      }
-    }
-
-    .noResults {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-
-      img {
-        height: 200px;
-      }
-    }
-  }
-
-  .pager {
-    margin-top: 16px;
-  }
+.list {
+  @apply grid gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-5;
 }
 
 :global {

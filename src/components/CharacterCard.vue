@@ -1,4 +1,7 @@
 <script setup>
+import { computed } from "vue";
+import colors from "tailwindcss/colors";
+
 const props = defineProps({
   character: {
     type: Object,
@@ -6,53 +9,67 @@ const props = defineProps({
   },
 });
 
+const statusClass = computed(() => {
+  const dict = {
+    Alive: "bg-lime-500",
+    Dead: "bg-red-500",
+    unknown: "bg-stone-400",
+  };
+  return dict[props.character.status] || dict.unknown;
+});
+
+const speciesColor = computed(() => {
+  const dict = {
+    Humanoid: colors.blue[300],
+    Human: colors.blue[500],
+    Alien: colors.purple[500],
+    unknown: colors.purple[300],
+  };
+  return dict[props.character.species] || dict.unknown;
+});
+
 const character = { ...props.character };
 </script>
 
 <template>
-  <div :class="$style.container">
-    <router-link :to="{ name: 'CharacterPage', params: { id: character.id } }">
-      <img :src="character.image" :alt="character.name" />
-    </router-link>
+  <a-card hoverable class="max-w-sm">
+    <template #cover>
+      <router-link
+        :to="{ name: 'CharacterPage', params: { id: character.id } }"
+      >
+        <div class="relative">
+          <div class="bg-stone-200">
+            <img
+              :src="character.image"
+              :alt="character.name"
+              class="object-cover w-[100%]"
+            />
+          </div>
 
-    <div :class="$style.specifications">
-      <b>{{ character.name }}</b>
-      <span>Gender: {{ character.gender }}</span>
-      <span>Status: {{ character.status }}</span>
-    </div>
-  </div>
+          <div
+            :class="[
+              'absolute w-full py-0.5 bottom-0 text-white text-xs text-center capitalize leading-4',
+              statusClass,
+            ]"
+          >
+            {{ character.status }}
+          </div>
+        </div>
+      </router-link>
+    </template>
+    <a-card-meta :title="character.name">
+      <template #description>
+        <div class="flex gap-1">
+          <a-badge
+            :count="character.gender"
+            :number-style="{ backgroundColor: colors.gray[400] }"
+          />
+          <a-badge
+            :count="character.species"
+            :number-style="{ backgroundColor: speciesColor }"
+          />
+        </div>
+      </template>
+    </a-card-meta>
+  </a-card>
 </template>
-
-<style lang="scss" module>
-.container {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-
-  &:hover {
-    transition: all 400ms cubic-bezier(0.175, 0.885, 0, 1);
-    box-shadow: rgba(67, 71, 85, 0.27) 0 0 0.25em,
-      rgba(90, 125, 188, 0.05) 0 0.25em 1em;
-    transform: scale(1.03, 1.03);
-  }
-
-  .separator {
-    margin-bottom: 4px;
-    border: 1px solid #ccc;
-  }
-
-  img {
-    width: 100%;
-    object-fit: cover;
-    border-bottom: 1px solid #ccc;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-  }
-
-  .specifications {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 8px;
-  }
-}
-</style>

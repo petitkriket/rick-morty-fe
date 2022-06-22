@@ -1,6 +1,4 @@
 <script setup>
-import BaseSearchInput from "../components/BaseSearchInput.vue";
-
 import { ref } from "vue";
 const searchValue = ref("");
 
@@ -13,22 +11,30 @@ const search = (name) =>
 
 <template>
   <div :class="$style.landingPage">
-    <div :class="$style.fieldGroup">
-      <h2>Who are you looking for ?</h2>
-
-      <span :class="$style.searchInput">
-        <BaseSearchInput
-          v-model="searchValue"
-          @keyup.enter="search(searchValue)"
+    <div class="text-white">
+      <p class="leading-6 text-3xl font-semibold">Who are you looking for ?</p>
+      <span class="flex flex-row gap-1">
+        <a-input-search
+          v-model:value="searchValue"
+          enter-button
+          size="large"
+          @search="search(searchValue)"
         />
-        <button @click="search(searchValue)">Find</button>
       </span>
-      <div :class="$style.suggestions">
-        <p>
+      <div class="flex">
+        <p class="py-2 text-base">
           Try
-          <a @click="search('Beth')">Beth</a>
+          <span
+            class="underline cursor-pointer font-semibold"
+            @click="search('Beth')"
+            >Beth</span
+          >
           or
-          <a @click="search('Meeseeks')">Mr Meeseeks</a>..
+          <span
+            class="underline cursor-pointer font-semibold"
+            @click="search('Meeseeks')"
+            >Mr Meeseeks</span
+          >..
         </p>
       </div>
     </div>
@@ -37,38 +43,9 @@ const search = (name) =>
 
 <style lang="scss" module>
 .landingPage {
+  @apply flex justify-center items-center bg-cover bg-no-repeat bg-center;
   background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
     url("../assets/hero.jpeg");
-  height: 80vh;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  position: relative;
-
-  .fieldGroup {
-    text-align: center;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-
-    .searchInput {
-      display: flex;
-      flex-direction: row;
-      gap: 4px;
-    }
-    .suggestions {
-      display: flex;
-
-      a {
-        font-size: 14px;
-        color: white;
-        cursor: pointer;
-        font-weight: bold;
-        text-decoration: underline;
-      }
-    }
-  }
+  height: calc(100vh - 54px);
 }
 </style>

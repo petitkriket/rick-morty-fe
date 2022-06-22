@@ -1,9 +1,7 @@
 <script setup>
 const emit = defineEmits(["reset", "change"]);
-
 const reset = () => emit("reset");
-const updateFilter = (field, value) =>
-  emit("change", { [field]: value, page: "" });
+const change = (key, value) => emit("change", { [key]: value, page: "" });
 
 const props = defineProps({
   clearable: {
@@ -12,78 +10,61 @@ const props = defineProps({
   },
 });
 
-const healthStatusOptions = [
-  { value: "", label: "Any" },
-  { value: "alive", label: "Alive" },
-  { value: "dead", label: "Dead" },
-  { value: "unknown", label: "Unknown" },
-];
-
-const genderOptions = [
-  { value: "", label: "Any" },
-  { value: "female", label: "Female" },
-  { value: "male", label: "Male" },
-  { value: "genderless", label: "Genderless" },
-  { value: "unknown", label: "Unknown" },
+const fields = [
+  {
+    key: "gender",
+    placeholder: "Gender",
+    options: [
+      { value: "female", label: "Female" },
+      { value: "male", label: "Male" },
+      { value: "genderless", label: "Genderless" },
+      { value: "unknown", label: "Unknown" },
+    ],
+  },
+  {
+    key: "status",
+    placeholder: "Status",
+    options: [
+      { value: "alive", label: "Alive" },
+      { value: "dead", label: "Dead" },
+      { value: "unknown", label: "Unknown" },
+    ],
+  },
+  {
+    key: "species",
+    placeholder: "Species",
+    options: [
+      { value: "human", label: "Human" },
+      { value: "humanoid", label: "Humanoid" },
+      { value: "alien", label: "Alien" },
+      { value: "animal", label: "Animal" },
+      { value: "robot", label: "Robot" },
+      { value: "mythological", label: "Mythological" },
+      { value: "disease", label: "Disease" },
+      { value: "cronenberg", label: "Cronenberg" },
+      { value: "poopybutthole", label: "Poopybutthole" },
+      { value: "unknown", label: "Unknown" },
+    ],
+  },
 ];
 </script>
 
 <template>
-  <div :class="$style.container">
-    <div :class="$style.criterias">
-      <div :class="$style.filter">
-        Status
-        <select @change="updateFilter('status', $event.target.value)">
-          <option
-            v-for="statusOption in healthStatusOptions"
-            :key="statusOption.value"
-            :value="statusOption.value"
-            :selected="$route.query.status === statusOption.value"
-          >
-            {{ statusOption.label }}
-          </option>
-        </select>
-      </div>
-
-      <div :class="$style.filter">
-        Gender
-        <select @change="updateFilter('gender', $event.target.value)">
-          <option
-            v-for="statusOption in genderOptions"
-            :key="statusOption.value"
-            :value="statusOption.value"
-            :selected="$route.query.gender === statusOption.value"
-          >
-            {{ statusOption.label }}
-          </option>
-        </select>
-      </div>
-
-      <button :disabled="!props.clearable" @click="reset">Clear filters</button>
+  <div class="flex gap-4">
+    <div class="flex gap-4">
+      <a-select
+        v-for="field in fields"
+        :key="field.key"
+        :value="$route.query[field.key]"
+        :placeholder="field.placeholder"
+        :options="field.options"
+        allow-clear
+        class="w-32"
+        @change="change(field.key, $event)"
+      />
     </div>
+    <a-button v-if="props.clearable" type="dashed" @click="reset">
+      Clear
+    </a-button>
   </div>
 </template>
-
-<style lang="scss" module>
-.container {
-  border: 1px solid #ccc;
-  background: #f1f1f1;
-  border-radius: 4px;
-  padding: 16px;
-
-  .criterias {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 64px;
-    padding: 8px;
-
-    .filter {
-      display: flex;
-      flex-direction: row;
-      gap: 8px;
-    }
-  }
-}
-</style>

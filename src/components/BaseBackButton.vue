@@ -15,20 +15,5 @@ const backOrFallback = () =>
 </script>
 
 <template>
-  <span :class="$style.goBack">
-    <button @click="backOrFallback">Go Back</button>
-  </span>
+  <a-button @click="backOrFallback">&#8592; Go Back</a-button>
 </template>
-
-<style lang="scss" module>
-.goBack {
-  display: flex;
-  cursor: pointer;
-
-  button {
-    padding: 8px;
-    border: 0;
-    cursor: pointer;
-  }
-}
-</style>
