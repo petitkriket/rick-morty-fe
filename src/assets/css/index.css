@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+img {
+    display: unset !important;
+}
+
+.anticon svg {
+    vertical-align: inherit;
+}
