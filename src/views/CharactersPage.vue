@@ -5,45 +5,25 @@ import BasePager from "../components/BasePager.vue";
 import CharacterFilters from "../components/CharacterFilters.vue";
 import CharacterCard from "../components/CharacterCard.vue";
 
-// TODO: create a composable
-import _omitBy from "lodash.omitby";
-import { characterService } from "../services/models/character";
-
-import { ref, onBeforeMount, watch } from "vue";
+import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import _omitBy from "lodash.omitby";
 
-const characters = ref(null);
-const requestStatus = ref(null);
-const paginationInfo = ref({});
+import { useCharactersQuery } from "../queries/character";
 
 const router = useRouter();
 const route = useRoute();
 
-const onSearch = (name) => onFilterChange({ name });
-const resetFilters = () => router.push({ query: {} });
+const queryParams = computed(() => route.query);
 
-onBeforeMount(async () => getCharacters());
+const {
+  isError,
+  isLoading,
+  isSuccess,
+  data: characters,
+} = useCharactersQuery(queryParams);
 
-watch(
-  () => route.query,
-  async () => getCharacters()
-);
-
-const getCharacters = async () => {
-  requestStatus.value = "loading";
-
-  characterService
-    .getAll(route.query)
-    .then((result) => {
-      characters.value = result.data.results;
-      paginationInfo.value = result.data.info;
-      requestStatus.value = "success";
-    })
-    .catch(() => {
-      requestStatus.value = "error";
-    });
-};
-
+// TODO: extract to a filter composable
 const onFilterChange = (params) => {
   const query = _omitBy(
     {
@@ -56,13 +36,11 @@ const onFilterChange = (params) => {
   router.push({ query });
 };
 
-const paginate = (direction) => {
-  const url = paginationInfo.value[direction];
-  if (!url) return;
-
-  const params = Object.fromEntries(new URLSearchParams(url.split("?")[1]));
-  onFilterChange(params);
-};
+const onSearch = (name) => onFilterChange({ name });
+const paginate = (url) =>
+  onFilterChange(Object.fromEntries(new URLSearchParams(url.split("?")[1])));
+const resetFilters = () => router.push({ query: {} });
+const hasActiveFilters = computed(() => Object.keys(route.query).length > 0);
 </script>
 
 <template>
@@ -77,28 +55,31 @@ const paginate = (direction) => {
     </div>
 
     <CharacterFilters
+      :clearable="hasActiveFilters"
       :class="$style.filters"
       @change="onFilterChange"
       @reset="resetFilters"
     />
-
     <Transition name="fade" appear>
-      <main :key="paginationInfo.next">
-        <div v-if="requestStatus === 'loading'"></div>
+      <main :key="route.query.page">
+        <div v-if="isLoading">Loading...</div>
 
-        <div v-if="requestStatus === 'error'" :class="$style.noResults">
+        <div v-if="isError" :class="$style.noResults">
           <img
             src="../assets/pickle-jar.png"
             alt="A weird looking pickle jar"
           />
-          <h3>No Result..</h3>
+          <h3>No Results...</h3>
         </div>
 
-        <div v-if="requestStatus === 'success'">
-          <p>{{ characters.length }} of {{ paginationInfo.count }} results</p>
+        <div v-if="isSuccess">
+          <p>
+            {{ characters.results.length }} of
+            {{ characters.info.count }} results
+          </p>
           <div :class="$style.cards">
             <CharacterCard
-              v-for="character in characters"
+              v-for="character in characters.results"
               :key="character.id"
               :character="character"
             />
@@ -107,11 +88,11 @@ const paginate = (direction) => {
           <BasePager
             :class="$style.pager"
             :current-page="$route.query.page"
-            :page-count="paginationInfo.pages"
-            :has-prev-page="!!paginationInfo.prev"
-            :has-next-page="!!paginationInfo.next"
-            @prev="paginate('prev')"
-            @next="paginate('next')"
+            :page-count="characters.info.pages"
+            :has-prev-page="!!characters.info.prev"
+            :has-next-page="!!characters.info.next"
+            @prev="paginate(characters.info.prev)"
+            @next="paginate(characters.info.next)"
           />
         </div>
       </main>

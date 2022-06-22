@@ -3,7 +3,7 @@ import { rickAndMortyAPI } from "../index";
 const resource = "/character/";
 
 export const characterService = {
-  getAll(params) {
+  getMany(params) {
     return rickAndMortyAPI.get(resource, { params });
   },
   getOne(id) {

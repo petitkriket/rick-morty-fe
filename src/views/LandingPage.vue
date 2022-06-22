@@ -14,7 +14,7 @@ const search = (name) =>
 <template>
   <div :class="$style.landingPage">
     <div :class="$style.fieldGroup">
-      <h2>Who do you seek ?</h2>
+      <h2>Who are you looking for ?</h2>
 
       <span :class="$style.searchInput">
         <BaseSearchInput
@@ -28,7 +28,7 @@ const search = (name) =>
           Try
           <a @click="search('Beth')">Beth</a>
           or
-          <a @click="search('Mr. Meeseeks')">Mr Meeseeks</a>..
+          <a @click="search('Meeseeks')">Mr Meeseeks</a>..
         </p>
       </div>
     </div>

@@ -13,6 +13,7 @@
     "humps": "^2.0.1",
     "lodash.omitby": "^4.6.0",
     "vue": "^3.2.31",
+    "vue-query": "^1.25.0",
     "vue-router": "4",
     "vuex": "^4.0.2"
   },
