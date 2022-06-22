@@ -1,5 +1,4 @@
 <script setup>
-import { defineEmits, defineProps } from "vue";
 const emit = defineEmits(["reset", "change"]);
 
 const reset = () => emit("reset");

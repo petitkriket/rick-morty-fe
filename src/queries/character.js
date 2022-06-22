@@ -4,10 +4,9 @@ import { characterService } from "../services/models/character";
 import { characterFormatter } from "../formatters/character";
 
 export const useCharactersQuery = (params) => {
-  const keys = ["characters", params];
-
-  return useQuery(keys, () => characterService.getMany(params.value), {
-    keepPreviousData: true,
+  return useQuery({
+    queryKey: ["characters", params],
+    queryFn: () => characterService.getMany(params.value),
     select: ({ data }) => {
       return {
         ...data,
@@ -18,8 +17,9 @@ export const useCharactersQuery = (params) => {
 };
 
 export const useCharacterQuery = (id) => {
-  const keys = ["character", id];
-  return useQuery(keys, () => characterService.getOne(id), {
+  return useQuery({
+    queryKey: ["character", id],
+    queryFn: () => characterService.getOne(id),
     select: ({ data }) => characterFormatter(data),
   });
 };
