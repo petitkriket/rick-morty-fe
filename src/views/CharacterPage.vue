@@ -1,30 +1,21 @@
 <script setup>
 import BaseBackButton from "../components/BaseBackButton.vue";
 
-import { onBeforeMount, computed } from "vue";
-import { useStore } from "vuex";
 import { useRoute } from "vue-router";
+import { useCharacterQuery } from "../queries/character";
 
 const route = useRoute();
-const store = useStore();
 
-const getCharacter = async (id) => {
-  store.dispatch("characters/FETCH_CHARACTER", id);
-};
-
-onBeforeMount(async () => getCharacter(route.params.id));
-
-const character = computed(() =>
-  store.state.characters.characters.find(
-    ({ id }) => id === Number(route.params.id)
-  )
+const { isSuccess, data: character } = useCharacterQuery(
+  route.params.id,
+  route
 );
 </script>
 
 <template>
   <div :class="$style.characterPage">
     <BaseBackButton />
-    <div :class="$style.container">
+    <div v-if="isSuccess" :class="$style.container">
       <img :src="character.image" :alt="character.name" />
 
       <div :class="$style.specifications">

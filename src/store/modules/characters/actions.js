@@ -14,7 +14,7 @@ export const actions = {
   [FETCH_CHARACTERS]({ commit, state }, params) {
     return new Promise((resolve, reject) => {
       characterService
-        .getAll(params)
+        .getMany(params)
         .then((response) => {
           const storedCharactersIds = state.characters.map(({ id }) => id);
 
